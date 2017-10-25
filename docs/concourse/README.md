@@ -3,18 +3,32 @@
 This guide describes how to deploy [Concourse](http://concourse.ci/) on [Google Compute Engine](https://cloud.google.com/) using BOSH. You will deploy a BOSH director as part of these instructions.
 
 ## Prerequisites
-* You must have the `terraform` CLI installed on your workstation. See [Download Terraform](https://www.terraform.io/downloads.html) for more details.
+* You must have the `terraform` CLI installed on your workstation. See [Download Terraform](https://www.terraform.io/downloads.html) for more details.  Once downloaded, install it by unzipping the file and copying the executable:
+
+```
+cd ~/Downloads
+unzip ./terraform_0.10.7_darwin_amd64.zip
+sudo cp ./terraform /usr/local/bin
+```
+
 * You must have the `gcloud` CLI installed on your workstation. See [cloud.google.com/sdk](https://cloud.google.com/sdk/).
 
 ### Setup your workstation
 
-1. Set your project ID:
+1. Clone this repo:
 
   ```
-  export projectid=REPLACE_WITH_YOUR_PROJECT_ID
+  cd
+  git clone https://github.com/mjeffries-pivotal/bosh-google-cpi-release
   ```
 
-1. Export your preferred compute region and zone:
+2. Set your project ID:
+
+    ```
+    export projectid=REPLACE_WITH_YOUR_PROJECT_ID
+    ```
+
+3. Export your preferred compute region and zone:
 
   ```
   export region=us-east1
@@ -22,7 +36,7 @@ This guide describes how to deploy [Concourse](http://concourse.ci/) on [Google 
   export zone2=us-east1-d
   ```
 
-1. Configure `gcloud` with a user who is an owner of the project:
+4. Configure `gcloud` with a user who is an owner of the project:
 
   ```
   gcloud auth login
@@ -30,8 +44,8 @@ This guide describes how to deploy [Concourse](http://concourse.ci/) on [Google 
   gcloud config set compute/zone ${zone}
   gcloud config set compute/region ${region}
   ```
-  
-1. Create a service account and key:
+
+5. Create a service account and key:
 
   ```
   gcloud iam service-accounts create terraform-bosh
@@ -39,7 +53,7 @@ This guide describes how to deploy [Concourse](http://concourse.ci/) on [Google 
       --iam-account terraform-bosh@${projectid}.iam.gserviceaccount.com
   ```
 
-1. Grant the new service account editor access to your project:
+6. Grant the new service account editor access to your project:
 
   ```
   gcloud projects add-iam-policy-binding ${projectid} \
@@ -47,7 +61,7 @@ This guide describes how to deploy [Concourse](http://concourse.ci/) on [Google 
       --role roles/editor
   ```
 
-1. Make your service account's key available in an environment variable to be used by `terraform`:
+7. Make your service account's key available in an environment variable to be used by `terraform`:
 
   ```
   export GOOGLE_CREDENTIALS=$(cat /tmp/terraform-bosh.key.json)
