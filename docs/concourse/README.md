@@ -396,8 +396,8 @@ cd bosh-google-cpi-release/docs/concourse/
   * range: 10.0.20.0/24
   * gateway: 10.0.20.1
 * subnets: az: z2
-    range: 10.0.40.0/24
-    gateway: 10.0.40.1
+  * range: 10.0.40.0/24
+  * gateway: 10.0.40.1
 
 5. Review the [concourse.yml](concourse.yml) manifest file and set a few environment variables:
 
@@ -490,11 +490,11 @@ fly -t gcp set-pipeline -p hello-world -c hello.yml
 fly -t gcp unpause-pipeline -p hello-world
 ```
 
-7. Click on hello-world, then kick off a build by clicking on the plus sign at the upper right corner of the page.  Look at output.
+7. Click on hello-world, then kick off a build by clicking on the plus sign at the upper right corner of the page.  Look at the output of the build to see the greeting echoed out.
 
 8. optionally - create DNS A record pointing to EXTERNAL_IP, then use the DNS name instead of the IP.
 
-9. Concourse creates a single team called main, with "concourse" user, when you first install concourse.  You can add additional teams and users as follows, supplying values for USERID and PASSWORD:
+9. Concourse creates a single team called "main", with "concourse" user, when you first install concourse.  You can add additional teams and users as follows, supplying values for USERID and PASSWORD:
 
 ```
 fly -t gcp set-team -n team1 --basic-auth-username USERID --basic-auth-password PASSWORD
@@ -507,4 +507,4 @@ fly -t gcp login -n team1
 fly -t gcp destroy-pipeline -p hello-world
 ```
 
-11. Explore the [fly CLI](http://concourse.ci/fly-cli.html).
+11. Explore the [fly CLI](http://concourse.ci/fly-cli.html).  You will learn more about using Concourse tomorrow.
