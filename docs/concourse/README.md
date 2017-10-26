@@ -3,15 +3,19 @@
 This guide describes how to deploy [Concourse](http://concourse.ci/) on [Google Compute Engine](https://cloud.google.com/) using BOSH. You will deploy a BOSH director as part of these instructions.
 
 ## Prerequisites
-* You must have the `terraform` CLI installed on your workstation. See [Download Terraform](https://www.terraform.io/downloads.html) for more details.  Once downloaded, install it by unzipping the file and copying the executable:
+* You must have the `terraform` CLI installed on your workstation. See [Download Terraform](https://www.terraform.io/downloads.html) for more details.  This lab was written using Terraform v0.10.7.
+Once downloaded, install it by unzipping the file and installing the executable:
 
 ```
 cd ~/Downloads
 unzip ./terraform_0.10.7_darwin_amd64.zip
 sudo cp ./terraform /usr/local/bin
+terraform -v
 ```
 
 * You must have the `gcloud` CLI installed on your workstation. See [cloud.google.com/sdk](https://cloud.google.com/sdk/).
+
+* You must have the `git` CLI installed on your workstation. See [git Downloads](https://git-scm.com/downloads).
 
 ### Setup your workstation
 
@@ -24,9 +28,9 @@ sudo cp ./terraform /usr/local/bin
 
 2. Set your project ID:
 
-    ```
-    export projectid=REPLACE_WITH_YOUR_PROJECT_ID
-    ```
+  ```
+  export projectid=REPLACE_WITH_YOUR_PROJECT_ID
+  ```
 
 3. Export your preferred compute region and zone:
 
@@ -69,15 +73,20 @@ sudo cp ./terraform /usr/local/bin
 
 ### Create required infrastructure with Terraform
 
-1. Download [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.
+1. cd to the directory containing [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.  If you've just installed terraform, you'll need to run the `terraform init` command.
 
-1. In a terminal from the same directory where the 2 `.tf` files are located, view the Terraform execution plan to see the resources that will be created:
+  ```
+  cd ~/bosh-google-cpi-release/docs/concourse/
+  terraform init
+  ```
+
+2. In a terminal from the same directory where the 2 `.tf` files are located, view the Terraform execution plan to see the resources that will be created:
 
   ```
   terraform plan -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
   ```
 
-1. Create the resources:
+3. Create the resources:
 
   ```
   terraform apply -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
