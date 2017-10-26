@@ -52,8 +52,8 @@ networks:
     type: manual
     subnets:
     - az: z1
-      range: 10.150.0.0/24
-      gateway: 10.150.0.1
+      range: 10.0.20.0/24
+      gateway: 10.0.20.1
       cloud_properties:
         network_name: concourse
         subnetwork_name: concourse-public-<%=region %>-1
@@ -62,8 +62,8 @@ networks:
           - concourse-public
           - concourse-internal
     - az: z2
-      range: 10.160.0.0/24
-      gateway: 10.160.0.1
+      range: 10.0.40.0/24
+      gateway: 10.0.40.1
       cloud_properties:
         network_name: concourse
         subnetwork_name: concourse-public-<%=region %>-2
@@ -74,7 +74,7 @@ networks:
 
   - name: vip
     type: vip
-    
+
 disk_types:
 - name: database
   disk_size: 10240

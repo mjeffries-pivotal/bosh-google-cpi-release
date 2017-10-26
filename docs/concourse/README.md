@@ -365,7 +365,7 @@ terraform -v
 Your username is `admin` and password is `admin`.
 
 ### Deploy Concourse
-Complete the following steps from your bastion instance.
+Complete the following steps from your bastion VM.
 
 1. Upload the required [Google BOSH Stemcell](http://bosh.io/docs/stemcell.html):
 
@@ -380,9 +380,26 @@ Complete the following steps from your bastion instance.
   bosh upload release https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.0.3
   ```
 
-3. Download the [cloud-config.yml](cloud-config.yml) manifest file.
+3. Create a new directory, install git, and clone the repo.
 
-4. Download the [concourse.yml](concourse.yml) manifest file and set a few environment variables:
+```
+cd
+mkdir cpi
+cd cpi
+sudo apt-get install git
+git clone https://github.com/mjeffries-pivotal/bosh-google-cpi-release
+cd bosh-google-cpi-release/docs/concourse/
+```
+
+4. Review the [cloud-config.yml](cloud-config.yml) manifest file. You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  The cloud-config.yml will use the following unless you change it:
+* subnets: az: z1
+  * range: 10.0.20.0/24
+  * gateway: 10.0.20.1
+* subnets: az: z2
+    range: 10.0.40.0/24
+    gateway: 10.0.40.1
+
+5. Review the [concourse.yml](concourse.yml) manifest file and set a few environment variables:
 
   ```
   export external_ip=`gcloud compute addresses describe concourse | grep ^address: | cut -f2 -d' '`
@@ -390,12 +407,17 @@ Complete the following steps from your bastion instance.
   ```
 
 5. Choose unique passwords for internal services and ATC and export them
+
    ```
    export common_password=
    export atc_password=
    ```
 
-1. (Optional) Enable https support for concourse atc
+6. Note the value for "external_ip" - that's where concourse will be running
+
+7. Remember the value for "atc_password" - that's the password you'll use to login to concourse.
+
+8. (Optional) Enable https support for concourse atc (you'll need an SSL cert)
 
   In `concourse.yml` under the atc properties block fill in the following fields:
   ```
@@ -404,15 +426,85 @@ Complete the following steps from your bastion instance.
   tls_key: << SSL Private Key >>
   ```
 
-1. Upload the cloud config:
+9. Upload the cloud config:
 
   ```
   bosh update cloud-config cloud-config.yml
   ```
 
-1. Target the deployment file and deploy:
+10. Target the deployment file and deploy:
 
   ```
   bosh deployment concourse.yml
   bosh deploy
   ```
+
+11.  After the job completes, you'll have your concourse environment available at http://EXTERNAL_IP.  Go ahead and browse to this URL from your workstation.
+
+### Setup Concourse fly CLI on your workstation
+
+Now you're done with the bosh bastion VM and google shell.  Go back to your workstation for the rest of the lab.
+
+1. Download the Fly CLI.  Look for the download link in the lower right corner of the concourse app.  Then install fly as follows:
+
+```
+chmod +x ~/Downloads/fly
+sudo cp ~/Downloads/fly /usr/local/bin
+fly -v
+```
+
+2. Login to concourse using the Fly CLI and the concourse external IP from above.  The userid is "concourse", and the password is the value of "atc-password" from above.
+
+```
+fly -t gcp login -c http://EXTERNAL_IP
+```
+
+3. Create a simple pipeline to test out concourse.  Create a file called "hello.yml" with this content:
+
+```
+jobs:
+- name: hello-world
+  plan:
+  - task: say-hello
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: ubuntu}
+      run:
+        path: echo
+        args: ["Hello, world!"]
+```
+
+4. Now send the pipeline to concourse.
+
+```
+fly -t gcp set-pipeline -p hello-world -c hello.yml
+```
+
+5. To see your pipeline in concourse, copy URL from the output of the command above to your browser.  Login using same userid/password you did for the fly CLI.
+
+6. Now unpause the pipeline.
+
+```
+fly -t gcp unpause-pipeline -p hello-world
+```
+
+7. Click on hello-world, look at output
+
+8. optionally - create DNS A record pointing to EXTERNAL_IP, then use the DNS name instead of the IP.
+
+9. Concourse creates a single team called main, with "concourse" user, when you first install concourse.  You can add additional teams and users as follows:
+
+```
+fly -t gcp set-team -n team1 --basic-auth-username ci1 --basic-auth-password pivotal2017
+fly -t gcp login -n team1
+```
+
+10. When you're done, you can destroy the pipeline:
+
+```
+fly -t gcp destroy-pipeline -p hello-world
+```
+
+11. Explore the [fly CLI](http://concourse.ci/fly-cli.html).
