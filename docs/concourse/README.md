@@ -158,7 +158,16 @@ terraform -v
   cd google-bosh-director
   ```
 
-8. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb`:
+8. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb` with the content below.  You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  The manifest.yml.erb will use the following unless you change it:
+* bosh vip subnet
+  * range: 10.0.10.0/29
+  * gateway: 10.0.10.1
+  * static: [10.0.10.3-10.0.10.7]
+* bosh private network static_ips: [10.0.10.6]
+* bosh dns address: 10.0.10.6
+* bosh blobstore address: 10.0.10.6
+* bosh agent mbus: nats://nats:nats-password@10.0.10.6:4222
+* bosh ssh_tunnel host: 10.0.10.6
 
   ```
   ---
@@ -211,9 +220,9 @@ terraform -v
     - name: private
       type: manual
       subnets:
-      - range: 10.0.0.0/29
-        gateway: 10.0.0.1
-        static: [10.0.0.3-10.0.0.7]
+      - range: 10.0.10.0/29
+        gateway: 10.0.10.1
+        static: [10.0.10.3-10.0.10.7]
         cloud_properties:
           network_name: concourse
           subnetwork_name: bosh-concourse-<%=region %>
@@ -246,7 +255,7 @@ terraform -v
 
       networks:
         - name: private
-          static_ips: [10.0.0.6]
+          static_ips: [10.0.10.6]
           default:
             - dns
             - gateway
@@ -266,13 +275,13 @@ terraform -v
           adapter: postgres
 
         dns:
-          address: 10.0.0.6
+          address: 10.0.10.6
           domain_name: microbosh
           db: *db
           recursor: 169.254.169.254
 
         blobstore:
-          address: 10.0.0.6
+          address: 10.0.10.6
           port: 25250
           provider: dav
           director:
@@ -305,7 +314,7 @@ terraform -v
           project: <%=project_id %>
 
         agent:
-          mbus: nats://nats:nats-password@10.0.0.6:4222
+          mbus: nats://nats:nats-password@10.0.10.6:4222
           ntp: *ntp
           blobstore:
              options:
@@ -322,7 +331,7 @@ terraform -v
       release: bosh-google-cpi
 
     ssh_tunnel:
-      host: 10.0.0.6
+      host: 10.0.10.6
       port: 22
       user: bosh
       private_key: <%=ssh_key_path %>
@@ -350,7 +359,7 @@ terraform -v
 11. Target your BOSH environment:
 
   ```
-  bosh target 10.0.0.6
+  bosh target 10.0.10.6
   ```
 
 Your username is `admin` and password is `admin`.
@@ -364,23 +373,23 @@ Complete the following steps from your bastion instance.
   bosh upload stemcell https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3263.8
   ```
 
-1. Upload the required [BOSH Releases](http://bosh.io/docs/release.html):
+2. Upload the required [BOSH Releases](http://bosh.io/docs/release.html):
 
   ```
   bosh upload release https://bosh.io/d/github.com/concourse/concourse?v=2.5.0
   bosh upload release https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.0.3
   ```
 
-1. Download the [cloud-config.yml](cloud-config.yml) manifest file.
+3. Download the [cloud-config.yml](cloud-config.yml) manifest file.
 
-1. Download the [concourse.yml](concourse.yml) manifest file and set a few environment variables:
+4. Download the [concourse.yml](concourse.yml) manifest file and set a few environment variables:
 
   ```
   export external_ip=`gcloud compute addresses describe concourse | grep ^address: | cut -f2 -d' '`
   export director_uuid=`bosh status --uuid 2>/dev/null`
   ```
 
-1. Choose unique passwords for internal services and ATC and export them
+5. Choose unique passwords for internal services and ATC and export them
    ```
    export common_password=
    export atc_password=
