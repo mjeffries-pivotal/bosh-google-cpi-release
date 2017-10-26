@@ -158,7 +158,7 @@ terraform -v
   cd google-bosh-director
   ```
 
-8. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb` with the content below.  You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  The manifest.yml.erb will use the following unless you change it:
+8. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb` with the content below.  You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  **The network values must match the ones you specified in the main.tf template earlier.** The manifest.yml.erb will use the following unless you change it:
 * bosh vip subnet
   * range: 10.0.10.0/29
   * gateway: 10.0.10.1
@@ -391,7 +391,7 @@ git clone https://github.com/mjeffries-pivotal/bosh-google-cpi-release
 cd bosh-google-cpi-release/docs/concourse/
 ```
 
-4. Review the [cloud-config.yml](cloud-config.yml) manifest file. You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  The cloud-config.yml will use the following unless you change it:
+4. Review the [cloud-config.yml](cloud-config.yml) manifest file. You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  **The values must match the ones you specified in the concourse.tf temlate earlier.** The cloud-config.yml will use the following unless you change it:
 * subnets: az: z1
   * range: 10.0.20.0/24
   * gateway: 10.0.20.1
