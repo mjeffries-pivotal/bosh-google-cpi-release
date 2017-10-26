@@ -35,7 +35,7 @@ resource "google_compute_network" "network" {
 // Subnet for the BOSH director
 resource "google_compute_subnetwork" "bosh-subnet-1" {
   name          = "bosh-${var.name}-${var.region}"
-  ip_cidr_range = "10.0.0.0/24"
+  ip_cidr_range = "10.0.10.0/24"
   network       = "${google_compute_network.network.self_link}"
 }
 
@@ -84,8 +84,10 @@ resource "google_compute_instance" "bosh-bastion" {
 
   tags = ["bosh-bastion", "bosh-internal"]
 
-  disk {
-    image = "ubuntu-1404-trusty-v20160627"
+  boot_disk {
+      initialize_params {
+        image = "ubuntu-1404-trusty-v20160627"
+      }
   }
 
   network_interface {

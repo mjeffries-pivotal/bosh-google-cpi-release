@@ -73,20 +73,27 @@ terraform -v
 
 ### Create required infrastructure with Terraform
 
-1. cd to the directory containing [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.  If you've just installed terraform, you'll need to run the `terraform init` command.
+1. From your terminal, change to the directory containing [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.  If you've just installed terraform, you'll need to run the `terraform init` command.
 
   ```
   cd ~/bosh-google-cpi-release/docs/concourse/
   terraform init
   ```
 
-2. In a terminal from the same directory where the 2 `.tf` files are located, view the Terraform execution plan to see the resources that will be created:
+2. Review the main.tf file.  You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  The main.tf will use the following unless you change it:
+* bosh subnet - ip_cidr_range = "10.0.10.0/24"
+
+3. Review the concourse.tf file.  You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  The concourse.tf will use the following unless you change it:
+* concourse subnet 1 - ip_cidr_range = "10.0.20.0/22"
+* concourse subnet 2 - ip_cidr_range = "10.0.40.0/22"
+
+4. From the same directory, view the Terraform execution plan to see the resources that will be created:
 
   ```
   terraform plan -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
   ```
 
-3. Create the resources:
+5. Create the resources:
 
   ```
   terraform apply -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
@@ -94,7 +101,9 @@ terraform -v
 
 ### Deploy a BOSH Director
 
-1. SSH to the bastion VM you created in the previous step. All SSH commands after this should be run from the VM:
+#### Setup your bosh bastion VM
+
+1. SSH to the bastion VM you created in the previous step. **All SSH commands after this should be run from the VM**:
 
   ```
   gcloud compute ssh bosh-bastion-concourse
@@ -111,45 +120,45 @@ terraform -v
   export project_id=`curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/project/project-id`
   ```
 
-1. Explicitly set your secondary zone:
+2. Explicitly set your secondary zone:
 
   ```
   export zone2=us-east1-d
   ```
 
-1. Create a **password-less** SSH key:
+3. Create a **password-less** SSH key:
 
   ```
   ssh-keygen -t rsa -f ~/.ssh/bosh -C bosh
   ```
 
-1. Run this `export` command to set the full path of the SSH private key you created earlier:
+4. Run this `export` command to set the full path of the SSH private key you created earlier:
 
   ```
   export ssh_key_path=$HOME/.ssh/bosh
   ```
 
-1. Navigate to your [project's web console](https://console.cloud.google.com/compute/metadata/sshKeys) and add the new SSH public key by pasting the contents of ~/.ssh/bosh.pub:
+5. Navigate to your [project's web console](https://console.cloud.google.com/compute/metadata/sshKeys) and add the new SSH public key by pasting the contents of ~/.ssh/bosh.pub:
 
   ![](../img/add-ssh.png)
 
   > **Important:** The username field should auto-populate the value `bosh` after you paste the public key. If it does not, be sure there are no newlines or carriage returns being pasted; the value you paste should be a single line.
 
 
-1. Confirm that `bosh-init` is installed by querying its version:
+6. Confirm that `bosh-init` is installed by querying its version:
 
   ```
   bosh-init -v
   ```
 
-1. Create and `cd` to a directory:
+7. Create and `cd` to a directory:
 
   ```
   mkdir google-bosh-director
   cd google-bosh-director
   ```
 
-1. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb`:
+8. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb`:
 
   ```
   ---
@@ -327,18 +336,18 @@ terraform -v
       ntp: *ntp
   ```
 
-1. Fill in the template values of the manifest with your environment variables:
+9. Fill in the template values of the manifest with your environment variables:
   ```
   erb manifest.yml.erb > manifest.yml
   ```
 
-1. Deploy the new manifest to create a BOSH Director:
+10. Deploy the new manifest to create a BOSH Director:
 
   ```
   bosh-init deploy manifest.yml
   ```
 
-1. Target your BOSH environment:
+11. Target your BOSH environment:
 
   ```
   bosh target 10.0.0.6
