@@ -490,14 +490,14 @@ fly -t gcp set-pipeline -p hello-world -c hello.yml
 fly -t gcp unpause-pipeline -p hello-world
 ```
 
-7. Click on hello-world, look at output
+7. Click on hello-world, then kick off a build by clicking on the plus sign at the upper right corner of the page.  Look at output.
 
 8. optionally - create DNS A record pointing to EXTERNAL_IP, then use the DNS name instead of the IP.
 
-9. Concourse creates a single team called main, with "concourse" user, when you first install concourse.  You can add additional teams and users as follows:
+9. Concourse creates a single team called main, with "concourse" user, when you first install concourse.  You can add additional teams and users as follows, supplying values for USERID and PASSWORD:
 
 ```
-fly -t gcp set-team -n team1 --basic-auth-username ci1 --basic-auth-password pivotal2017
+fly -t gcp set-team -n team1 --basic-auth-username USERID --basic-auth-password PASSWORD
 fly -t gcp login -n team1
 ```
 
