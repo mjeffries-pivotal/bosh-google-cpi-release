@@ -18,7 +18,7 @@ terraform -v
 * You must have the `git` CLI installed on your workstation. See [git Downloads](https://git-scm.com/downloads).
 
 ### Setup your workstation
-0. Signup
+1. Signup
 
     * [Sign up](https://cloud.google.com/compute/docs/signup) for Google Cloud Platform
     * Create a [new project](https://console.cloud.google.com/iam-admin/projects)
@@ -26,20 +26,20 @@ terraform -v
     * Enable the [IAM API](https://console.cloud.google.com/apis/api/iam.googleapis.com/overview) for your project
     * Enable the [Cloud Resource Manager API](https://console.cloud.google.com/apis/api/cloudresourcemanager.googleapis.com/overview)
 
-1. Clone this repo:
+2. Clone this repo:
 
   ```
   cd
   git clone https://github.com/mjeffries-pivotal/bosh-google-cpi-release
   ```
 
-2. Set your project ID:
+3. Set your project ID:
 
   ```
   export projectid=REPLACE_WITH_YOUR_PROJECT_ID
   ```
 
-3. Export your preferred compute region and zone:
+4. Export your preferred compute region and zone:
 
   ```
   export region=us-east1
@@ -47,7 +47,7 @@ terraform -v
   export zone2=us-east1-d
   ```
 
-4. Configure `gcloud` with a user who is an owner of the project:
+5. Configure `gcloud` with a user who is an owner of the project:
 
   ```
   gcloud auth login
@@ -56,7 +56,7 @@ terraform -v
   gcloud config set compute/region ${region}
   ```
 
-5. Create a service account and key:
+6. Create a service account and key:
 
   ```
   gcloud iam service-accounts create terraform-bosh
@@ -64,7 +64,7 @@ terraform -v
       --iam-account terraform-bosh@${projectid}.iam.gserviceaccount.com
   ```
 
-6. Grant the new service account editor access to your project:
+7. Grant the new service account editor access to your project:
 
   ```
   gcloud projects add-iam-policy-binding ${projectid} \
@@ -72,7 +72,7 @@ terraform -v
       --role roles/editor
   ```
 
-7. Make your service account's key available in an environment variable to be used by `terraform`:
+8. Make your service account's key available in an environment variable to be used by `terraform`:
 
   ```
   export GOOGLE_CREDENTIALS=$(cat /tmp/terraform-bosh.key.json)
