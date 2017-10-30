@@ -18,6 +18,13 @@ terraform -v
 * You must have the `git` CLI installed on your workstation. See [git Downloads](https://git-scm.com/downloads).
 
 ### Setup your workstation
+0. Signup
+
+  * [Sign up](https://cloud.google.com/compute/docs/signup) for Google Cloud Platform
+  * Create a [new project](https://console.cloud.google.com/iam-admin/projects)
+  * Enable the [GCE API](https://console.developers.google.com/apis/api/compute_component/overview) for your project
+  * Enable the [IAM API](https://console.cloud.google.com/apis/api/iam.googleapis.com/overview) for your project
+  * Enable the [Cloud Resource Manager API](https://console.cloud.google.com/apis/api/cloudresourcemanager.googleapis.com/overview)
 
 1. Clone this repo:
 
@@ -103,7 +110,7 @@ terraform -v
 
 #### Setup your bosh bastion VM
 
-1. SSH to the bastion VM you created in the previous step. **All SSH commands after this should be run from the VM**:
+1. SSH to the bastion VM you created in the previous step. **All commands after this should be run from the VM**:
 
   ```
   gcloud compute ssh bosh-bastion-concourse
