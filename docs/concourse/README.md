@@ -112,7 +112,7 @@ terraform -v
 
 0. In your new project, open Cloud Shell (the small >_ prompt icon in the web console menu bar).
 
-1. SSH to the bastion VM you created in the previous step. **All commands after this should be run from the VM**:
+1. Using Cloud Shell, SSH to the bastion VM you created in the previous step. **All commands after this should be run from the VM**:
 
   ```
   gcloud compute ssh bosh-bastion-concourse
@@ -153,11 +153,12 @@ terraform -v
 
   > **Important:** The username field should auto-populate the value `bosh` after you paste the public key. If it does not, be sure there are no newlines or carriage returns being pasted; the value you paste should be a single line.
 
-
-6. Confirm that `bosh-init` is installed by querying its version:
+6. Install bosh2, and make sure it installed ok.
 
   ```
-  bosh-init -v
+  sudo curl -o /usr/bin/bosh2 https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.28-linux-amd64
+  sudo chmod +x /usr/bin/bosh2
+  bosh2 -v
   ```
 
 7. Create and `cd` to a directory:
@@ -355,20 +356,28 @@ terraform -v
   ```
 
 9. Fill in the template values of the manifest with your environment variables:
+
   ```
   erb manifest.yml.erb > manifest.yml
   ```
 
-10. Deploy the new manifest to create a BOSH Director:
+10. Deploy the new manifest to create a BOSH Director. Note that this can take 15-20 minutes to complete. You may want to consider starting this command in a terminal multiplexer such as tmux or screen.
 
   ```
-  bosh-init deploy manifest.yml
+  bosh2 create-env manifest.yml
   ```
 
-11. Target your BOSH environment:
+11. Fetch ca_cert.pem from the manifest:
 
   ```
-  bosh target 10.0.10.6
+  bosh2 interpolate manifest.yml --path /misc/ca_cert > ca_cert.pem
+  ```
+
+12. Target your BOSH environment and login:
+
+  ```
+  bosh2 alias-env micro-google --environment 10.0.0.6 --ca-cert ca_cert.pem
+  bosh2 login -e micro-google
   ```
 
 Your username is `admin` and password is `admin`.
