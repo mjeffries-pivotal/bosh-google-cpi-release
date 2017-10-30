@@ -110,15 +110,15 @@ terraform -v
 
 #### Setup your bosh bastion VM
 
-0. In your new project, open Cloud Shell (the small >_ prompt icon in the web console menu bar).
+1. In your new project, open Cloud Shell (the small >_ prompt icon in the web console menu bar).
 
-1. Using Cloud Shell, SSH to the bastion VM you created in the previous step. **All commands after this should be run from the VM**:
+2. Using Cloud Shell, SSH to the bastion VM you created in the previous step. **All commands after this should be run from the VM**:
 
   ```
   gcloud compute ssh bosh-bastion-concourse
   ```
 
-1. Configure `gcloud` to use the correct zone, region, and project:
+3. Configure `gcloud` to use the correct zone, region, and project:
 
   ```
   zone=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/zone)
@@ -129,31 +129,31 @@ terraform -v
   export project_id=`curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/project/project-id`
   ```
 
-2. Explicitly set your secondary zone:
+4. Explicitly set your secondary zone:
 
   ```
   export zone2=us-east1-d
   ```
 
-3. Create a **password-less** SSH key:
+5. Create a **password-less** SSH key:
 
   ```
   ssh-keygen -t rsa -f ~/.ssh/bosh -C bosh
   ```
 
-4. Run this `export` command to set the full path of the SSH private key you created earlier:
+6. Run this `export` command to set the full path of the SSH private key you created earlier:
 
   ```
   export ssh_key_path=$HOME/.ssh/bosh
   ```
 
-5. Navigate to your [project's web console](https://console.cloud.google.com/compute/metadata/sshKeys) and add the new SSH public key by pasting the contents of ~/.ssh/bosh.pub:
+7. Navigate to your [project's web console](https://console.cloud.google.com/compute/metadata/sshKeys) and add the new SSH public key by pasting the contents of ~/.ssh/bosh.pub:
 
   ![](../img/add-ssh.png)
 
   > **Important:** The username field should auto-populate the value `bosh` after you paste the public key. If it does not, be sure there are no newlines or carriage returns being pasted; the value you paste should be a single line.
 
-6. Install bosh2, and make sure it installed ok.
+8. Install bosh2, and make sure it installed ok.
 
   ```
   sudo curl -o /usr/bin/bosh2 https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.28-linux-amd64
@@ -161,14 +161,14 @@ terraform -v
   bosh2 -v
   ```
 
-7. Create and `cd` to a directory:
+9. Create and `cd` to a directory:
 
   ```
   mkdir google-bosh-director
   cd google-bosh-director
   ```
 
-8. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb` with the content below.  You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  **The network values must match the ones you specified in the main.tf template earlier.** The manifest.yml.erb will use the following unless you change it:
+10. Use `vim` or `nano` to create a BOSH Director deployment manifest named `manifest.yml.erb` with the content below.  You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  **The network values must match the ones you specified in the main.tf template earlier.** The manifest.yml.erb will use the following unless you change it:
 * bosh vip subnet
   * range: 10.0.10.0/29
   * gateway: 10.0.10.1
@@ -355,25 +355,25 @@ terraform -v
       ntp: *ntp
   ```
 
-9. Fill in the template values of the manifest with your environment variables:
+11. Fill in the template values of the manifest with your environment variables:
 
   ```
   erb manifest.yml.erb > manifest.yml
   ```
 
-10. Deploy the new manifest to create a BOSH Director. Note that this can take 15-20 minutes to complete. You may want to consider starting this command in a terminal multiplexer such as tmux or screen.
+12. Deploy the new manifest to create a BOSH Director. Note that this can take 15-20 minutes to complete. You may want to consider starting this command in a terminal multiplexer such as tmux or screen.
 
   ```
   bosh2 create-env manifest.yml
   ```
 
-11. Fetch ca_cert.pem from the manifest:
+13. Fetch ca_cert.pem from the manifest:
 
   ```
   bosh2 interpolate manifest.yml --path /misc/ca_cert > ca_cert.pem
   ```
 
-12. Target your BOSH environment and login:
+14. Target your BOSH environment and login:
 
   ```
   bosh2 alias-env micro-google --environment 10.0.0.6 --ca-cert ca_cert.pem
@@ -388,14 +388,13 @@ Complete the following steps from your bastion VM.
 1. Upload the required [Google BOSH Stemcell](http://bosh.io/docs/stemcell.html):
 
   ```
-  bosh upload stemcell https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3263.8
+  bosh2 -e micro-google upload-stemcell https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3468.1
   ```
 
 2. Upload the required [BOSH Releases](http://bosh.io/docs/release.html):
 
   ```
-  bosh upload release https://bosh.io/d/github.com/concourse/concourse?v=2.5.0
-  bosh upload release https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.0.3
+  bosh2 -e micro-google upload release https://bosh.io/d/github.com/concourse/concourse?v=3.6.0
   ```
 
 3. Create a new directory, install git, and clone the repo.
@@ -447,14 +446,14 @@ cd bosh-google-cpi-release/docs/concourse/
 9. Upload the cloud config:
 
   ```
-  bosh update cloud-config cloud-config.yml
+  bosh2 -e micro-google update cloud-config cloud-config.yml
   ```
 
 10. Target the deployment file and deploy:
 
   ```
-  bosh deployment concourse.yml
-  bosh deploy
+  bosh2 -e micro-google deployment concourse.yml
+  bosh2 -e micro-google deploy
   ```
 
 11.  After the job completes, you'll have your concourse environment available at http://EXTERNAL_IP.  Go ahead and browse to this URL from your workstation.
