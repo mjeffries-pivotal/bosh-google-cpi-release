@@ -18,3 +18,7 @@ releases/**/*.tgz
 pkg/
 *.tfstate
 *.tfstate.backup
+
+docs/concourse/.terraform/plugins/darwin_amd64/lock.json
+
+docs/concourse/.terraform/plugins/darwin_amd64/terraform-provider-google_v1.1.1_x4

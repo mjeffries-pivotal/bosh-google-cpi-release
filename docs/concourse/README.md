@@ -80,7 +80,7 @@ terraform -v
 
 ### Create required infrastructure with Terraform
 
-1. From your terminal, change to the directory containing [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.  If you've just installed terraform, you'll need to run the `terraform init` command.
+1. From your terminal, change to the directory containing [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.  
 
   ```
   cd ~/bosh-google-cpi-release/docs/concourse/
@@ -153,9 +153,10 @@ terraform -v
 
   > **Important:** The username field should auto-populate the value `bosh` after you paste the public key. If it does not, be sure there are no newlines or carriage returns being pasted; the value you paste should be a single line.
 
-8. Install bosh2, and make sure it installed ok.
+8. Check if bosh2 is installed - if not, install bosh2, and make sure it installed ok.
 
   ```
+  bosh2 -v
   sudo curl -o /usr/bin/bosh2 https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.28-linux-amd64
   sudo chmod +x /usr/bin/bosh2
   bosh2 -v
@@ -376,7 +377,7 @@ terraform -v
 14. Target your BOSH environment and login:
 
   ```
-  bosh2 alias-env micro-google --environment 10.0.0.6 --ca-cert ca_cert.pem
+  bosh2 alias-env micro-google --environment 10.0.10.6 --ca-cert ca_cert.pem
   bosh2 login -e micro-google
   ```
 
@@ -525,3 +526,29 @@ fly -t gcp destroy-pipeline -p hello-world
 ```
 
 11. Explore the [fly CLI](http://concourse.ci/fly-cli.html).  You will learn more about using Concourse tomorrow.
+
+
+### Delete resources (to be done at the end of the workshop)
+
+From your bosh-bastion instance, delete your Concourse deployment:
+
+```
+gcloud compute ssh bosh-bastion-concourse
+cd google-bosh-director
+bosh2 -e micro-google delete-deployment -d concourse
+```
+
+From your workstation, delete the infrastructure you created with terraform:
+```
+cd ~/bosh-google-cpi-release/docs/concourse/
+
+export projectid=REPLACE_WITH_YOUR_PROJECT_ID
+export region=us-east1
+export zone=us-east1-c
+export zone2=us-east1-d
+
+terraform destroy -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
+
+```
+
+Important: The BOSH bastion and director you created must also be destroyed. Follow the Delete resources instructions in the [Deploy BOSH on Google Cloud Platform](https://github.com/mjeffries-pivotal/bosh-google-cpi-release/blob/master/docs/bosh/README.md) guide.
