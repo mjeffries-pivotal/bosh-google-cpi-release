@@ -508,7 +508,6 @@ fly -t gcp destroy-pipeline -p hello-world
 
 11. Explore the [fly CLI](http://concourse.ci/fly-cli.html).  You will learn more about using Concourse tomorrow.
 
-
 ### Delete resources (to be done at the end of the workshop)
 
 From your bosh-bastion instance, delete your Concourse deployment:
@@ -516,7 +515,7 @@ From your bosh-bastion instance, delete your Concourse deployment:
 ```
 gcloud compute ssh bosh-bastion-concourse
 cd google-bosh-director
-bosh2 -e micro-google delete-deployment -d concourse
+bosh delete-deployment -d concourse
 ```
 
 From your workstation, delete the infrastructure you created with terraform:
@@ -531,5 +530,3 @@ export zone2=us-east1-d
 terraform destroy -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
 
 ```
-
-Important: The BOSH bastion and director you created must also be destroyed. Follow the Delete resources instructions in the [Deploy BOSH on Google Cloud Platform](https://github.com/mjeffries-pivotal/bosh-google-cpi-release/blob/master/docs/bosh/README.md) guide.
