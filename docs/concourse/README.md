@@ -80,7 +80,7 @@ terraform -v
 
 ### Create required infrastructure with Terraform
 
-1. From your terminal, change to the directory containing [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.  
+1. From your terminal, change to the directory containing [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.  If you've just installed terraform, you'll need to run the `terraform init` command.
 
   ```
   cd ~/bosh-google-cpi-release/docs/concourse/
@@ -153,13 +153,10 @@ terraform -v
 
   > **Important:** The username field should auto-populate the value `bosh` after you paste the public key. If it does not, be sure there are no newlines or carriage returns being pasted; the value you paste should be a single line.
 
-8. Check if bosh2 is installed - if not, install bosh2, and make sure it installed ok.
+8. Confirm that bosh-init is installed by querying its version:
 
   ```
-  bosh2 -v
-  sudo curl -o /usr/bin/bosh2 https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.28-linux-amd64
-  sudo chmod +x /usr/bin/bosh2
-  bosh2 -v
+  bosh-init -v
   ```
 
 9. Create and `cd` to a directory:
@@ -365,20 +362,13 @@ terraform -v
 12. Deploy the new manifest to create a BOSH Director. Note that this can take 15-20 minutes to complete. You may want to consider starting this command in a terminal multiplexer such as tmux or screen.
 
   ```
-  bosh2 create-env manifest.yml
+  bosh-init deploy manifest.yml
   ```
 
-13. Fetch ca_cert.pem from the manifest:
+13. Target your BOSH environment and login:
 
   ```
-  bosh2 interpolate manifest.yml --path /misc/ca_cert > ca_cert.pem
-  ```
-
-14. Target your BOSH environment and login:
-
-  ```
-  bosh2 alias-env micro-google --environment 10.0.10.6 --ca-cert ca_cert.pem
-  bosh2 login -e micro-google
+  bosh target 10.0.10.6
   ```
 
 Your username is `admin` and password is `admin`.
@@ -389,25 +379,25 @@ Complete the following steps from your bastion VM.
 1. Upload the required [Google BOSH Stemcell](http://bosh.io/docs/stemcell.html):
 
   ```
-  bosh2 -e micro-google upload-stemcell https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3468.1
+  bosh upload stemcell https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3468.1
   ```
 
 2. Upload the required [BOSH Releases](http://bosh.io/docs/release.html):
 
   ```
-  bosh2 -e micro-google upload release https://bosh.io/d/github.com/concourse/concourse?v=3.6.0
+  bosh upload release https://bosh.io/d/github.com/concourse/concourse?v=3.6.0
   ```
 
 3. Create a new directory, install git, and clone the repo.
 
-```
-cd
-mkdir cpi
-cd cpi
-sudo apt-get install git
-git clone https://github.com/mjeffries-pivotal/bosh-google-cpi-release
-cd bosh-google-cpi-release/docs/concourse/
-```
+  ```
+  cd
+  mkdir cpi
+  cd cpi
+  sudo apt-get install git
+  git clone https://github.com/mjeffries-pivotal/bosh-google-cpi-release
+  cd bosh-google-cpi-release/docs/concourse/
+  ```
 
 4. Review the [cloud-config.yml](cloud-config.yml) manifest file. You may need to update it to specify a different network IP range depending on what's already running in your GCP account.  **The values must match the ones you specified in the concourse.tf temlate earlier.** The cloud-config.yml will use the following unless you change it:
 * subnets: az: z1
@@ -435,26 +425,17 @@ cd bosh-google-cpi-release/docs/concourse/
 
 7. Remember the value for "atc_password" - that's the password you'll use to login to concourse.
 
-8. (Optional) Enable https support for concourse atc (you'll need an SSL cert)
-
-  In `concourse.yml` under the atc properties block fill in the following fields:
-  ```
-  tls_bind_port: 443
-  tls_cert: << SSL Cert for HTTPS >>
-  tls_key: << SSL Private Key >>
-  ```
-
-9. Upload the cloud config:
+8. Upload the cloud config:
 
   ```
-  bosh2 -e micro-google update cloud-config cloud-config.yml
+  bosh update cloud-config cloud-config.yml
   ```
 
-10. Target the deployment file and deploy:
+9. Target the deployment file and deploy:
 
   ```
-  bosh2 -e micro-google deployment concourse.yml
-  bosh2 -e micro-google deploy
+  bosh deployment concourse.yml
+  bosh deploy
   ```
 
 11.  After the job completes, you'll have your concourse environment available at http://EXTERNAL_IP.  Go ahead and browse to this URL from your workstation.
