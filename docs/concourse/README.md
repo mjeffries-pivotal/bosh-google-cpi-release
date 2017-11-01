@@ -329,7 +329,7 @@ terraform -v
           ntp: *ntp
           blobstore:
              options:
-               endpoint: http://10.0.0.6:25250
+               endpoint: http://10.0.10.6:25250
                user: agent
                password: agent-password
 
@@ -347,7 +347,7 @@ terraform -v
       user: bosh
       private_key: <%=ssh_key_path %>
 
-    mbus: https://mbus:mbus-password@10.0.0.6:6868
+    mbus: https://mbus:mbus-password@10.0.10.6:6868
 
     properties:
       google: *google_properties
