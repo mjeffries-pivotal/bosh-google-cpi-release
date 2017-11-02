@@ -516,7 +516,7 @@ From your bosh-bastion instance, delete your Concourse deployment:
 ```
 gcloud compute ssh bosh-bastion-concourse
 cd google-bosh-director
-bosh delete-deployment -d concourse
+bosh delete deployment concourse
 ```
 
 From your workstation, delete the infrastructure you created with terraform:
