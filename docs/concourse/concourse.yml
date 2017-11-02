@@ -19,7 +19,7 @@ releases:
 - name: concourse
   version: 3.6.0
 - name: garden-runc
-  version: 1.0.3
+  version: 1.9.5
 
 instance_groups:
 - name: web

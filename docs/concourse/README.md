@@ -386,6 +386,7 @@ Complete the following steps from your bastion VM.
 
   ```
   bosh upload release https://bosh.io/d/github.com/concourse/concourse?v=3.6.0
+  bosh upload release https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.9.5
   ```
 
 3. Create a new directory, install git, and clone the repo.
