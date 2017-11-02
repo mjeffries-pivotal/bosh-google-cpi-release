@@ -516,6 +516,7 @@ From your bosh-bastion instance, delete your Concourse deployment:
 ```
 gcloud compute ssh bosh-bastion-concourse
 cd google-bosh-director
+bosh target 10.0.10.6
 bosh delete deployment concourse
 ```
 
