@@ -415,24 +415,24 @@ Complete the following steps from your bastion VM.
   export director_uuid=`bosh status --uuid 2>/dev/null`
   ```
 
-5. Choose unique passwords for internal services and ATC and export them
+6. Choose unique passwords for internal services and ATC and export them
 
    ```
    export common_password=
    export atc_password=
    ```
 
-6. Note the value for "external_ip" - that's where concourse will be running
+7. Note the value for "external_ip" - that's where concourse will be running
 
-7. Remember the value for "atc_password" - that's the password you'll use to login to concourse.
+8. Remember the value for "atc_password" - that's the password you'll use to login to concourse.
 
-8. Upload the cloud config:
+9. Upload the cloud config:
 
   ```
   bosh update cloud-config cloud-config.yml
   ```
 
-9. Target the deployment file and deploy:
+10. Target the deployment file and deploy:
 
   ```
   bosh deployment concourse.yml
